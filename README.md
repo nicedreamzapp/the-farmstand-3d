@@ -4,13 +4,25 @@
 [![A-Frame](https://img.shields.io/badge/Built%20with-A--Frame%20WebXR-ef2d5e?logo=webxr)](https://aframe.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-> Step inside **The Farmstand 3D** — an immersive, WebXR-powered virtual marketplace where cannabis vendors showcase products in a 3D environment you can explore from any browser.
+> **The Farmstand 3D** is a walkable 3D cannabis trade show that runs in any browser: one `index.html` with 12 real vendor booths, each linking to that vendor's shop or Instagram.
 
 **[Walk it live →](https://marijuanaunion.com/marketplace/)**
 
 ![The Farmstand](screenshot.jpg)
 
-This repo *is* the marketplace. `index.html` here is the exact file serving at the link above — currently **build v27**.
+This repo *is* the marketplace. `index.html` here is the exact file serving at the link above, currently **build v27** (see [`version.txt`](version.txt) and `MK_BUILD` in [`index.html`](index.html#L446)).
+
+## What I built
+
+Everything in [`index.html`](index.html) was built by Matt Macosko ([Nice Dreamz](https://github.com/nicedreamzapp)). A-Frame and Three.js are upstream and load from a CDN (see [CREDITS.md](CREDITS.md)).
+
+- **Scene builders**: ground, open-air tent, entrance and decorations built in code by [`buildGround()`](index.html#L578), [`buildTent()`](index.html#L635), [`buildEntrance()`](index.html#L2924) and [`buildDecorations()`](index.html#L3256)
+- **Vendor booths**: the [`vendors` array](index.html#L454) plus [`buildBooth()`](index.html#L724), which picks a canopy style per product type and hangs each vendor's `board_*.jpg` logo
+- **Golden Jar hunt**: [`buildGoldenHunt()`](index.html#L4447), with a Web Audio chime and a [confetti burst](index.html#L4415)
+- **Getting around**: [booth directory with fly-to](index.html#L4138), [guided tour](index.html#L4183), [click-the-ground walk](index.html#L4585)
+- **Mobile joystick**: Pointer Events with `setPointerCapture`, a touch fallback that survives `pointercancel`, and [time-based movement](index.html#L4903)
+- **Screen fitting**: [`fitScene()`](index.html#L5142) on resize, orientation change and load
+- **Stale-tab self-update**: [`version.txt` check](index.html#L4253) that reloads at most once per server build
 
 ## About the Project
 
@@ -24,7 +36,7 @@ A complete outdoor convention — vendor booths, a scavenger hunt, a guided tour
 - 🏺 **Golden Jar scavenger hunt** — five jars hidden around the grounds; find them all to unlock a discount code (confetti and chiptune chime included)
 - 🚶 **Walks everywhere** — WASD + mouse on desktop, a virtual joystick on phones, click-the-ground teleport, a guided tour mode, and a booth directory with fly-to
 - 📐 **Fits any screen** — the whole scene rescales on resize, orientation change, and load, so phones and ultrawides both get the full grounds
-- 🥽 **WebXR ready** — works in VR headsets (Quest, etc.) as well as flat-screen browsers
+- 🥽 **WebXR ready** — A-Frame's VR button is left on, so headset browsers (Quest, etc.) can enter VR; flat-screen browsers are the main target
 - 🔄 **Self-updating** — a dormant tab checks `version.txt` on wake and reloads itself once if the server shipped a newer build
 
 ## The two bugs that made mobile walking "impossible" for a month
@@ -51,7 +63,7 @@ Bonus lesson: movement must be **time-based** (`units/second × dt`), never per-
 
 ## Run it
 
-It's one HTML file plus the vendor art it hangs on the booths (`board_*.jpg`, `blimp_banner.jpg`) and a one-line `version.txt` the self-update check reads. Serve the folder any way you like:
+You need any static file server and an internet connection (A-Frame 1.3.0 and a Three.js add-on load from jsDelivr). It's one HTML file plus the vendor art it hangs on the booths (`board_*.jpg`, `blimp_banner.jpg`) and a one-line `version.txt` the self-update check reads. Serve the folder any way you like:
 
 ```bash
 git clone https://github.com/nicedreamzapp/the-farmstand-3d.git
@@ -62,12 +74,14 @@ python3 -m http.server 8000
 
 For VR, serve over HTTPS — WebXR requires it. Drop the images and it still runs; the booths just lose their logo boards.
 
-Customize the `vendors` array near the top of the script for your own booths, links, and colors. Everything — ground, tent poles, booths, people, decorations — is built by small `build*()` functions you can edit live.
+**What doesn't work locally:** on phones, `index.html` POSTs temporary diagnostics to `debug_log.php` on the live server. That endpoint is not in this repo, so those requests fail quietly when you run it yourself. Nothing else depends on it.
+
+Customize the `vendors` array near the top of the script for your own booths, links, and colors. Everything — ground, tent poles, booths, people, decorations — is built by small functions (`build*()`, plus `createPerson()` for the crowd) you can edit live.
 
 ## Tech Stack
 
-- [A-Frame](https://aframe.io/) (WebXR framework)
-- Three.js (3D rendering)
+- [A-Frame](https://aframe.io/) 1.3.0 (WebXR framework, upstream)
+- Three.js (3D rendering, bundled inside A-Frame, plus `CSS3DRenderer` from three@0.137.5, upstream)
 - Vanilla JavaScript — no build step, no bundler
 - Served as static files from MarijuanaUnion.com
 
@@ -86,7 +100,7 @@ This project is part of the **Divine Tribe / NiceDreamz** web ecosystem:
 
 ## Built with
 
-[A-Frame](https://aframe.io) · vanilla JS · one long night with [Claude](https://claude.com/claude-code) as pair programmer
+[A-Frame](https://aframe.io) · vanilla JS · [Claude](https://claude.com/claude-code) as pair programmer
 
 Made by [Nice Dreamz](https://www.youtube.com/@nicedreamzapps) in Humboldt County, California 🌲
 
